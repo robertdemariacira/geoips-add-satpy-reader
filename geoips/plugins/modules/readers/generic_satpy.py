@@ -1,4 +1,5 @@
 """Generic satpy reader"""
+
 import logging
 from typing import Any, Dict, List, Optional, Union
 
@@ -15,6 +16,10 @@ name = "generic_satpy"
 
 def call(
     fnames: List[str],
+    start_time_meta_path: str,
+    end_time_meta_path: str,
+    source_name: str,
+    platform_name: str,
     metadata_only: bool = False,
     chans: Optional[List[str]] = None,
     area_def: Optional[pyresample.geometry.AreaDefinition] = None,
@@ -22,9 +27,8 @@ def call(
     satpy_reader: str = "ahi_hsd",
     channel_groups: Dict[str, List[str]] = {"0.5km": ["B09"]},
     roi: float = 3000,
-    platform_name: Optional[str] = None,
     filter_parameters: Optional[Dict[str, Any]] = None,
-    reader_kwargs: Optional[Dict[str, Any]] = None,
+    satpy_reader_kwargs: Optional[Dict[str, Any]] = None,
     calibration: Union[List[str], str] = "*",
     resolution: Union[List[float], float] = "*",
     polarization: Union[List[str], str] = "*",
@@ -41,7 +45,7 @@ def call(
         filenames=fnames,
         reader=satpy_reader,
         filter_parameters=filter_parameters,
-        reader_kwargs=reader_kwargs,
+        reader_kwargs=satpy_reader_kwargs,
     )
 
     all_channels = []
@@ -75,8 +79,12 @@ def call(
                 lons = xr.DataArray(lons_np, dims={"y": channel.y, "x": channel.x})
                 lats = xr.DataArray(lats_np, dims={"y": channel.y, "x": channel.x})
 
-                start_time = channel.attrs["time_parameters"]["observation_start_time"]
-                end_time = channel.attrs["time_parameters"]["observation_end_time"]
+                start_time = _get_metadata_entry_from_string(
+                    start_time_meta_path, channel.attrs
+                )
+                end_time = _get_metadata_entry_from_string(
+                    end_time_meta_path, channel.attrs
+                )
 
             if metadata_only:
                 data_dict[channel_name] = channel
@@ -87,8 +95,8 @@ def call(
         data_dict["latitude"] = lats
 
         group_dataset = xr.Dataset(data_dict)
-        group_dataset.attrs["source_name"] = "ahi"
-        group_dataset.attrs["platform_name"] = "himawari-8"
+        group_dataset.attrs["source_name"] = source_name
+        group_dataset.attrs["platform_name"] = platform_name
         group_dataset.attrs["data_provider"] = "satpy"
         group_dataset.attrs["start_datetime"] = start_time
         group_dataset.attrs["end_datetime"] = end_time
@@ -98,3 +106,12 @@ def call(
         output_datasets["METADATA"] = group_dataset[[]]
 
     return output_datasets
+
+
+def _get_metadata_entry_from_string(metadata_path: str, attrs: Dict[str, Any]) -> Any:
+    split_path = metadata_path.split("/")
+    current_attr_level = attrs
+    for path_entry in split_path:
+        current_attr_level = current_attr_level[path_entry]
+
+    return current_attr_level
