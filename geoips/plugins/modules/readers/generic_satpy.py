@@ -37,6 +37,7 @@ def call(
     generate: bool = True,
     unload: bool = True,
     load_kwargs: Optional[Dict[str, Any]] = None,
+    force_compute: bool = False,
 ) -> Dict[str, xr.DataArray]:
     if platform_name is None:
         platform_name = satpy_reader
@@ -86,10 +87,11 @@ def call(
                     end_time_meta_path, channel.attrs
                 )
 
-            if metadata_only:
-                data_dict[channel_name] = channel
-            else:
-                data_dict[channel_name] = channel.compute()
+            if force_compute and not metadata_only:
+                breakpoint()
+                channel.data = channel.data.compute()
+
+            data_dict[channel_name] = channel
 
         data_dict["longitude"] = lons
         data_dict["latitude"] = lats
@@ -105,6 +107,7 @@ def call(
         output_datasets[group_name] = group_dataset
         output_datasets["METADATA"] = group_dataset[[]]
 
+    breakpoint()
     return output_datasets
 
 

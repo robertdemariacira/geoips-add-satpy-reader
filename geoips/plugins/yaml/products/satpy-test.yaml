@@ -1,0 +1,14 @@
+interface: products
+family: list
+name: satpy-test
+docstring: |
+  A product to test satpy functionality.
+spec:
+  products:
+    - name: satpy-passthrough
+      source_names: [abi]
+      docstring: |
+        The Infrared product_defaults configuration for abi product.
+      product_defaults: Infrared
+      spec:
+        variables: ["B14BT"]
