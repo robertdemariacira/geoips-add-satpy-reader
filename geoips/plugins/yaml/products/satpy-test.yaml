@@ -9,6 +9,8 @@ spec:
       source_names: [abi]
       docstring: |
         The Infrared product_defaults configuration for abi product.
-      product_defaults: Infrared
       spec:
-        variables: ["B14BT"]
+        algorithm:
+          plugin:
+            name: passthrough
+        variables: ["C14", "C15"]

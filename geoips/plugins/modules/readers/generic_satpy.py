@@ -88,7 +88,6 @@ def call(
                 )
 
             if force_compute and not metadata_only:
-                breakpoint()
                 channel.data = channel.data.compute()
 
             data_dict[channel_name] = channel
@@ -107,7 +106,6 @@ def call(
         output_datasets[group_name] = group_dataset
         output_datasets["METADATA"] = group_dataset[[]]
 
-    breakpoint()
     return output_datasets
 
 
