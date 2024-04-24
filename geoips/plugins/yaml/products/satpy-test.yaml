@@ -9,8 +9,11 @@ spec:
       source_names: [abi]
       docstring: |
         The Infrared product_defaults configuration for abi product.
+      family: algorithm
       spec:
         algorithm:
           plugin:
             name: passthrough
+            arguments: {}
+            docstring: Passes data from the satpy reader through.
         variables: ["C14", "C15"]

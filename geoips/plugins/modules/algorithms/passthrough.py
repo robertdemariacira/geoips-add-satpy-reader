@@ -1,3 +1,5 @@
+"""Just passes data through as a test."""
+
 import logging
 
 import numpy as np
@@ -5,11 +7,11 @@ import numpy as np
 LOG = logging.getLogger(__name__)
 
 interface = "algorithms"
-family = "xarray_to_xarray"
+family = "xarray_dict_to_xarray"
 name = "passthrough"
 
 
-def call(arrays):
-    data = np.ones(10, 10)
+def call(xarray_dict):
+    data = np.arange(10)
     breakpoint()
     return data
